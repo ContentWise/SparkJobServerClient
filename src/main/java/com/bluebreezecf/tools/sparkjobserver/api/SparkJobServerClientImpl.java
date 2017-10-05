@@ -110,6 +110,43 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 	/**
 	 * {@inheritDoc}
 	 */
+	public List<SparkJobBinaryInfo> getBinaries() throws SparkJobServerClientException {
+		List<SparkJobBinaryInfo> sparkJobJarInfos = new ArrayList<SparkJobBinaryInfo>();
+		final CloseableHttpClient httpClient = buildClient();
+		try {
+			HttpGet getMethod = new HttpGet(jobServerUrl + "binaries");
+			HttpResponse response = httpClient.execute(getMethod);
+			int statusCode = response.getStatusLine().getStatusCode();
+			String resContent = getResponseContent(response.getEntity());
+			if (statusCode == HttpStatus.SC_OK) {
+				JSONObject jsonObj = JSONObject.fromObject(resContent);
+				Iterator<?> keyIter = jsonObj.keys();
+				while (keyIter.hasNext()) {
+					String jarName = (String)keyIter.next();
+					JSONObject binaryData = jsonObj.getJSONObject(jarName);
+					String uploadTime = (String)binaryData.get("upload-time");
+					String type = (String)binaryData.get("binary-type");
+					String uploadedTime = (String)jsonObj.get(jarName);
+					SparkJobBinaryInfo sparkJobJarInfo = new SparkJobBinaryInfo();
+					sparkJobJarInfo.setName(jarName);
+					sparkJobJarInfo.setUploadedTime(uploadedTime);
+					sparkJobJarInfo.setType(type);
+					sparkJobJarInfos.add(sparkJobJarInfo);
+				}
+			} else {
+				logError(statusCode, resContent, true);
+			}
+		} catch (Exception e) {
+			processException("Error occurs when trying to get information of binaries:", e);
+		} finally {
+			close(httpClient);
+		}
+		return sparkJobJarInfos;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public boolean uploadSparkJobJar(InputStream jarData, String appName)
 	    throws SparkJobServerClientException {
 		if (jarData == null || appName == null || appName.trim().length() == 0) {
@@ -136,6 +173,36 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 		}
 		return false;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean uploadSparkJobBinaryEgg(InputStream binaryData, String appName)
+			throws SparkJobServerClientException {
+		if (binaryData == null || appName == null || appName.trim().length() == 0) {
+			throw new SparkJobServerClientException("Invalid parameters.");
+		}
+		HttpPost postMethod = new HttpPost(jobServerUrl + "binaries/" + appName);
+
+		final CloseableHttpClient httpClient = buildClient();
+		try {
+			ByteArrayEntity entity = new ByteArrayEntity(IOUtils.toByteArray(binaryData));
+			postMethod.setEntity(entity);
+			entity.setContentType("application/python-archive");
+			HttpResponse response = httpClient.execute(postMethod);
+			int statusCode = response.getStatusLine().getStatusCode();
+			getResponseContent(response.getEntity());
+			if (statusCode == HttpStatus.SC_OK) {
+				return true;
+			}
+		} catch (Exception e) {
+			logger.error("Error occurs when uploading spark job jars:", e);
+		} finally {
+			close(httpClient);
+			closeStream(binaryData);
+		}
+		return false;
+	}
 	
 	/**
 	 * {@inheritDoc}
@@ -156,6 +223,27 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 		}
 		return uploadSparkJobJar(jarIn, appName);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean uploadSparkJobBinaryEgg(File binaryFile, String appName)
+			throws SparkJobServerClientException {
+		if (binaryFile == null || !binaryFile.getName().endsWith(".egg")
+				|| appName == null || appName.trim().length() == 0) {
+			throw new SparkJobServerClientException("Invalid parameters.");
+		}
+		InputStream jarIn = null;
+		try {
+			jarIn = new FileInputStream(binaryFile);
+		} catch (FileNotFoundException fnfe) {
+			String errorMsg = "Error occurs when getting stream of the given jar file";
+			logger.error(errorMsg, fnfe);
+			throw new SparkJobServerClientException(errorMsg, fnfe);
+		}
+		return uploadSparkJobJar(jarIn, appName);
+	}
+
 
 	/**
 	 * {@inheritDoc}

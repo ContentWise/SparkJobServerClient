@@ -42,6 +42,20 @@ public interface ISparkJobServerClient {
 	 *         information of spark job jars
 	 */
 	List<SparkJobJarInfo> getJars() throws SparkJobServerClientException;
+
+	/**
+	 * Lists all the information of bonaries for potential jobs to be running
+	 * in the Spark Cluster behind the Spark Job Server.
+	 *
+	 * <p>
+	 * This method implements the Rest API <code>'GET /binaries' </code>of the
+	 * Spark Job Server.
+	 *
+	 * @return a list containing information of Spark Job binaries
+	 * @throws SparkJobServerClientException error occurs when trying to get
+	 *         information of spark job jars
+	 */
+	List<SparkJobBinaryInfo> getBinaries() throws SparkJobServerClientException;
 	
 	/**
 	 * Uploads a jar containing spark job to the Spark Job Server under
@@ -63,7 +77,28 @@ public interface ISparkJobServerClient {
 	 */
 	boolean uploadSparkJobJar(InputStream jarData, String appName) 
         throws SparkJobServerClientException;
-	
+
+	/**
+	 * Uploads a egg containing spark job to the Spark Job Server under
+	 * the given application name.
+	 *
+	 * <p>
+	 * This method implements the Rest API <code>'POST /binaries/&lt;appName&gt;' </code>
+	 * of the Spark Job Server.
+	 *
+	 * @param binaryData the instance of <code>InputStream</code> contains the
+	 *     contents of the target egg file to be uploaded
+	 * @param appName the application name under which the related Spark Job
+	 *     is about to run, meanwhile the application name also be the alias
+	 *     name of the uploaded egg file.
+	 * @return true if the operation of uploading is successful, false otherwise
+	 * @throws SparkJobServerClientException if the given parameter binaryData or
+	 *     appName is null, or error occurs when uploading the related spark job
+	 *     egg
+	 */
+	boolean uploadSparkJobBinaryEgg(InputStream binaryData, String appName)
+			throws SparkJobServerClientException;
+
 	/**
 	 * Uploads a jar containing spark job to the Spark Job Server under
 	 * the given application name.
@@ -83,6 +118,26 @@ public interface ISparkJobServerClient {
 	 */
 	boolean uploadSparkJobJar(File jarFile, String appName)
 	    throws SparkJobServerClientException;
+
+	/**
+	 * Uploads a binary EGG file containing spark job to the Spark Job Server under
+	 * the given application name.
+	 *
+	 * <p>
+	 * This method implements the Rest API <code>'POST /bonaries/&lt;appName&gt;' </code>
+	 * of the Spark Job Server.
+	 *
+	 * @param binaryFile the egg file
+	 * @param appName the application name under which the related Spark Job
+	 *     is about to run, meanwhile the application name also be the alias
+	 *     name of the uploaded egg file.
+	 * @return true if the operation of uploading is successful, false otherwise
+	 * @throws SparkJobServerClientException if the given parameter jarData or
+	 *     appName is null, or error occurs when uploading the related spark job
+	 *     egg
+	 */
+	boolean uploadSparkJobBinaryEgg(File binaryFile, String appName)
+			throws SparkJobServerClientException;
 	
 	/**
 	 * Lists all the contexts available in the Spark Job Server.
