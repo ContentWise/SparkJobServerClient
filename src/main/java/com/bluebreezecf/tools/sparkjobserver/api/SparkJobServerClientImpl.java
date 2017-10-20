@@ -30,7 +30,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
@@ -346,6 +345,32 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 		return false;
 	}
 
+	public boolean killJob(String jobId) throws SparkJobServerClientException {
+		final CloseableHttpClient httpClient = buildClient();
+		try {
+			if (!isNotEmpty(jobId)) {
+				throw new SparkJobServerClientException("The given jobId is null or empty.");
+			}
+			StringBuffer postUrlBuff = new StringBuffer(jobServerUrl);
+			postUrlBuff.append("jobs/").append(jobId);
+
+			HttpDelete deleteMethod = new HttpDelete(postUrlBuff.toString());
+			HttpResponse response = httpClient.execute(deleteMethod);
+			int statusCode = response.getStatusLine().getStatusCode();
+			String resContent = getResponseContent(response.getEntity());
+			if (statusCode == HttpStatus.SC_OK) {
+				return true;
+			} else {
+				logError(statusCode, resContent, false);
+			}
+		} catch (Exception e) {
+			processException("Error occurs when trying to kill the target jobId:", e);
+		} finally {
+			close(httpClient);
+		}
+		return false;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -436,9 +461,20 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 	 */
 	public SparkJobResult startJob(InputStream dataFileStream, Map<String, String> params) throws SparkJobServerClientException {
 		BufferedReader br = null;
+		StringBuilder  stringBuilder = new StringBuilder();
 		try {
 			br = new BufferedReader(new InputStreamReader(dataFileStream));
-			String data = br.lines().collect(Collectors.joining(System.lineSeparator()));
+			try {
+				String line = null;
+				String ls = System.lineSeparator();
+				while((line = br.readLine()) != null) {
+					stringBuilder.append(line);
+					stringBuilder.append(ls);
+				}
+			} finally {
+				br.close();
+			}
+			String data = stringBuilder.toString();
 			return startJob(data, params);
 		} catch (Exception e) {
 			processException("Error occurs when reading inputstream:", e);

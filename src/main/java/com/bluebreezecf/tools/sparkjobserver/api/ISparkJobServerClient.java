@@ -186,6 +186,14 @@ public interface ISparkJobServerClient {
 	 *        or I/O error occurs while trying to delete context in spark job server.
 	 */
 	boolean deleteContext(String contextName) throws SparkJobServerClientException;
+
+	/**
+	 * Kills an executing job
+	 * @param jobId
+	 * @return
+	 * @throws SparkJobServerClientException
+     */
+	boolean killJob(String jobId) throws SparkJobServerClientException;
 	
 	/**
 	 * Lists the last N jobs in the Spark Job Server.
