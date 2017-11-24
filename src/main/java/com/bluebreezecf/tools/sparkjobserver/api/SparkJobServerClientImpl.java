@@ -240,7 +240,7 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 			logger.error(errorMsg, fnfe);
 			throw new SparkJobServerClientException(errorMsg, fnfe);
 		}
-		return uploadSparkJobJar(jarIn, appName);
+		return uploadSparkJobBinaryEgg(jarIn, appName);
 	}
 
 
