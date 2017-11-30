@@ -125,10 +125,9 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 					JSONObject binaryData = jsonObj.getJSONObject(jarName);
 					String uploadTime = (String)binaryData.get("upload-time");
 					String type = (String)binaryData.get("binary-type");
-					String uploadedTime = (String)jsonObj.get(jarName);
 					SparkJobBinaryInfo sparkJobJarInfo = new SparkJobBinaryInfo();
 					sparkJobJarInfo.setName(jarName);
-					sparkJobJarInfo.setUploadedTime(uploadedTime);
+					sparkJobJarInfo.setUploadedTime(uploadTime);
 					sparkJobJarInfo.setType(type);
 					sparkJobJarInfos.add(sparkJobJarInfo);
 				}
