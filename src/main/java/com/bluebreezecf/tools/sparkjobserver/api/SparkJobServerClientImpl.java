@@ -157,24 +157,28 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 
 		final CloseableHttpClient httpClient = buildClient();
 		try {
+			ByteArrayEntity entity = new ByteArrayEntity(IOUtils.toByteArray(jarData));
+			postMethod.setEntity(entity);
+			entity.setContentType("application/java-archive");
+			HttpResponse response = httpClient.execute(postMethod);
 
-			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
-			builder.addBinaryBody(appName,jarData);
-			HttpEntity multipart = builder.build();
-
-			postMethod.setEntity(multipart);
-
-
-			ProgressEntityWrapper.ProgressListener pListener =
-					new ProgressEntityWrapper.ProgressListener() {
-						@Override
-						public void progress(float percentage) {
-							logger.info(String.format("File Upload at %s percent.", Float.toString(percentage)));
-//							assertFalse(Float.compare(percentage, 100) > 0);
-						}
-					};
-
-			CloseableHttpResponse response = httpClient.execute(postMethod);
+//			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+//			builder.addBinaryBody(appName,jarData);
+//			HttpEntity multipart = builder.build();
+//
+//			postMethod.setEntity(multipart);
+//
+//
+//			ProgressEntityWrapper.ProgressListener pListener =
+//					new ProgressEntityWrapper.ProgressListener() {
+//						@Override
+//						public void progress(float percentage) {
+//							logger.info(String.format("File Upload at %s percent.", Float.toString(percentage)));
+////							assertFalse(Float.compare(percentage, 100) > 0);
+//						}
+//					};
+//
+//			CloseableHttpResponse response = httpClient.execute(postMethod);
 
 			int statusCode = response.getStatusLine().getStatusCode();
 			getResponseContent(response.getEntity());
