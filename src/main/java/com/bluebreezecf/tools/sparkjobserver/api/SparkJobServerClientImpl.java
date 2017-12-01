@@ -37,11 +37,14 @@ import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.log4j.Logger;
@@ -154,10 +157,25 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 
 		final CloseableHttpClient httpClient = buildClient();
 		try {
-			ByteArrayEntity entity = new ByteArrayEntity(IOUtils.toByteArray(jarData));
-			postMethod.setEntity(entity);
-			entity.setContentType("application/java-archive");
-			HttpResponse response = httpClient.execute(postMethod);
+
+			MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+			builder.addBinaryBody(appName,jarData);
+			HttpEntity multipart = builder.build();
+
+			postMethod.setEntity(multipart);
+
+
+			ProgressEntityWrapper.ProgressListener pListener =
+					new ProgressEntityWrapper.ProgressListener() {
+						@Override
+						public void progress(float percentage) {
+							logger.info(String.format("File Upload at %s percent.", Float.toString(percentage)));
+//							assertFalse(Float.compare(percentage, 100) > 0);
+						}
+					};
+
+			CloseableHttpResponse response = httpClient.execute(postMethod);
+
 			int statusCode = response.getStatusLine().getStatusCode();
 			getResponseContent(response.getEntity());
 			if (statusCode == HttpStatus.SC_OK) {
