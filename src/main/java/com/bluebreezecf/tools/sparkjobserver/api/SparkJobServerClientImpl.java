@@ -153,7 +153,7 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 		if (jarData == null || appName == null || appName.trim().length() == 0) {
 			throw new SparkJobServerClientException("Invalid parameters.");
 		}
-		HttpPost postMethod = new HttpPost(jobServerUrl + "jars/" + appName);
+		HttpPost postMethod = new HttpPost(jobServerUrl + "binaries/" + appName);
 
 		final CloseableHttpClient httpClient = buildClient();
 		try {
