@@ -64,7 +64,7 @@ public interface ISparkJobServerClientConstants {
 	 * <p>
 	 * It is equivalent to <code>PARAM_SPARK_EXECUTOR_MEMORY</code>.
 	 */
-	String PARAM_MEM_PER_NODE = "mem-per-node";
+	String PARAM_MEMORY_PER_NODE = "memory-per-node";
 	
 	/**
 	 * Parameter used to create job context, indicates the number of memeory
@@ -72,7 +72,7 @@ public interface ISparkJobServerClientConstants {
 	 * <p>
 	 * It's value is 'xxxm' such as 512m, where xxx is a integer, and m means MB.	 
 	 * <p>
-	 * It is equivalent to <code>PARAM_MEM_PER_NODE</code>.
+	 * It is equivalent to <code>PARAM_MEMORY_PER_NODE</code>.
 	 */
 	String PARAM_SPARK_EXECUTOR_MEMORY = "spark.executor.memory";
 	
@@ -126,4 +126,14 @@ public interface ISparkJobServerClientConstants {
 	 * </p>
 	 */
 	String PARAM_TIMEOUT = "timeout";
+
+	/**
+	 * It's an optional parameter which is the number of seconds the,
+	 * should wait before timeing out. Increasing this value may be
+	 * required when using sync on long jobs.
+	 * <p>
+	 * It's value is integer.
+	 * </p>
+	 */
+	String PARAM_DEPENDANT_JAR = "dependent-jar-uris";
 }

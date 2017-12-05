@@ -34,6 +34,7 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -319,6 +320,20 @@ class SparkJobServerClientImpl implements ISparkJobServerClient {
 				
 			}
 			HttpPost postMethod = new HttpPost(postUrlBuff.toString());
+
+			if (params.containsKey(ISparkJobServerClientConstants.PARAM_DEPENDANT_JAR)) {
+				String dependantJars = params.get(ISparkJobServerClientConstants.PARAM_DEPENDANT_JAR);
+
+				StringBuffer dataBuffer = new StringBuffer();
+				dataBuffer.append(ISparkJobServerClientConstants.PARAM_DEPENDANT_JAR);
+				dataBuffer.append("=");
+				dataBuffer.append("[\""+StringUtils.join(dependantJars.split(","), "\",\"") +"\"]");
+
+				StringEntity strEntity = new StringEntity(dataBuffer.toString());
+				strEntity.setContentEncoding("UTF-8");
+				strEntity.setContentType("text/plain");
+				postMethod.setEntity(strEntity);
+			}
 			HttpResponse response = httpClient.execute(postMethod);
 			int statusCode = response.getStatusLine().getStatusCode();
 			String resContent = getResponseContent(response.getEntity());
