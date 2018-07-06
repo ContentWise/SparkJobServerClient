@@ -1,5 +1,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.contentwise</groupId>
+    <artifactId>contentwise-parent</artifactId>
+    <version>1.0</version>
+  </parent>
   <groupId>com.bluebreezecf</groupId>
   <artifactId>spark-job-server-client</artifactId>
   <version>1.0.0</version>
@@ -106,17 +111,6 @@
 		  <scope>test</scope>
       </dependency>
   </dependencies>
-  <distributionManagement>
-	  <snapshotRepository>
-		  <id>internal</id>
-		  <url>https://ci.contentwise.tv/nexus/content/repositories/libs-snapshots-local</url>
-		  <uniqueVersion>false</uniqueVersion>
-	  </snapshotRepository>
-	  <repository>
-		  <id>internal</id>
-		  <url>https://ci.contentwise.tv/nexus/content/repositories/libs-releases-local</url>
-	  </repository>
-  </distributionManagement>
   <build>
 	<plugins>
 		<!--<plugin>-->
